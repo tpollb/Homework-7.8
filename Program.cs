@@ -122,13 +122,15 @@ namespace Homework_7._8
             int Choice = 0;
             char key = 'y';
             string FileName = @"db.txt";
-            int LinesCount = File.ReadAllLines(FileName).Length; //количество строк в файле
 
             List<Employee> db = new ();
             Employee emp = new();
 
             int id = 1;
             string input;
+
+            DateTime MinDate;
+            DateTime MaxDate;
 
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -140,17 +142,71 @@ namespace Homework_7._8
             if (!File.Exists(FileName)) //проверка наличия файла
             {
                 Console.WriteLine($"Файл {FileName} не существует.\nСоздаём файл {FileName}");
-                File.Create(FileName);
+                //File.Create(FileName);
+
+                Console.WriteLine($"Отсутствуют записи в файле {FileName}" +
+                    $"Необходимо создать хотябы одну запись");
+                Console.WriteLine($"Введите ФИО: ");
+                string fio = $"{Console.ReadLine()}";
+
+                //проверка возраста
+                flag = default;
+                int age = default;
+                while (flag == false || age < 1 || age > 120)
+                {
+                    Console.WriteLine("Введите возраст (1 - 120): ");
+                    input = Console.ReadLine();
+                    flag = int.TryParse(input, out age);
+                }
+
+                //проверка роста
+                flag = default;
+                int height = default;
+                while (flag == false || height < 10 || height > 230)
+                {
+                    Console.WriteLine("Введите рост (10 - 230): ");
+                    input = Console.ReadLine();
+                    flag = int.TryParse(input, out height);
+                }
+
+                //проверка даты рождения
+                DateTime dob;
+                string date;
+                do
+                {
+                    Console.WriteLine("Введите дату рождения в формате дд.ММ.гггг (день.месяц.год):");
+                    date = Console.ReadLine();
+                }
+                while (!DateTime.TryParseExact(date, "dd.MM.yyyy", null, DateTimeStyles.None, out dob));
+
+                Console.WriteLine($"Введите место рождения: ");
+                string hometown = $"{Console.ReadLine()}";
+
+                emp.Id = 1;
+                emp.RecDate = DateTime.Now;
+                emp.RecTime = DateTime.Now;
+                emp.Fio = fio;
+                emp.Age = age;
+                emp.Height = height;
+                emp.DoB = dob;
+                emp.HomeTown = hometown;
+
+                db.Add(emp);
+                WriteListToFile(FileName, db);
+                flag = false;
                 Console.WriteLine();
             }
             else //считываем файл, записываем данные в структуру
             {
+                int LinesCount1 = File.ReadAllLines(FileName).Length; //количество строк в файле
                 db = GetStructList(FileName);
-                Console.WriteLine($"Файл {FileName} загружен.\nКоличество записей {LinesCount}");
+                Console.WriteLine($"Файл {FileName} загружен.\nКоличество записей {LinesCount1}");
                 Console.ResetColor();
                 Console.WriteLine();
             }
 
+            int LinesCount = File.ReadAllLines(FileName).Length; //количество строк в файле
+            
             do
             {
                 while (flag == false || Choice < 1 || Choice > 7)
@@ -220,8 +276,6 @@ namespace Homework_7._8
 
                             Console.WriteLine($"Введите место рождения: ");
                             string hometown = $"{Console.ReadLine()}";
-
-                        //WriteFile(FileName, GenerateOutString(IdGenetrate(FileName), fio, age, height, dob, hometown));
                         
                         emp.Id = IdGenetrate(FileName);
                         emp.RecDate = DateTime.Now;
@@ -233,7 +287,6 @@ namespace Homework_7._8
                         emp.HomeTown = hometown;
 
                         db.Add(emp);
-                        //DisplayList(db, IdGenetrate(FileName) + 1);
                         
                         flag = false;
                     }
@@ -251,7 +304,6 @@ namespace Homework_7._8
                         flag1 = false;
                     }
 
-
                     //Редактирование записи
                     if (Choice == 4)
                     {
@@ -260,14 +312,85 @@ namespace Homework_7._8
                             Console.WriteLine($"Ведите номер записи для редактирования от 1 до {LinesCount}:");
                             flag1 = int.TryParse(Console.ReadLine(), out id);
                         }
+
+                        Console.WriteLine($"Введите ФИО: ");
+                        string fio = $"{Console.ReadLine()}";
+
+                        //проверка возраста
+                        flag = default;
+                        int age = default;
+                        while (flag == false || age < 1 || age > 120)
+                        {
+                            Console.WriteLine("Введите возраст (1 - 120): ");
+                            input = Console.ReadLine();
+                            flag = int.TryParse(input, out age);
+                        }
+
+                        //проверка роста
+                        flag = default;
+                        int height = default;
+                        while (flag == false || height < 10 || height > 230)
+                        {
+                            Console.WriteLine("Введите рост (10 - 230): ");
+                            input = Console.ReadLine();
+                            flag = int.TryParse(input, out height);
+                        }
+
+                        //проверка даты рождения
+                        DateTime dob;
+                        string date;
+                        do
+                        {
+                            Console.WriteLine("Введите дату рождения в формате дд.ММ.гггг (день.месяц.год):");
+                            date = Console.ReadLine();
+                        }
+                        while (!DateTime.TryParseExact(date, "dd.MM.yyyy", null, DateTimeStyles.None, out dob));
+
+                        Console.WriteLine($"Введите место рождения: ");
+                        string hometown = $"{Console.ReadLine()}";
+
+                        emp.Id = id;
+                        emp.RecDate = DateTime.Now;
+                        emp.RecTime = DateTime.Now;
+                        emp.Fio = fio;
+                        emp.Age = age;
+                        emp.Height = height;
+                        emp.DoB = dob;
+                        emp.HomeTown = hometown;
+
+                        db[id - 1] = emp;
                         flag = false;
                     }
 
                     //Загрузка записей в выбранном диапазоне дат
                     if (Choice == 5)
                     {
-
+                        //проверка минимальной даты записи
+                        string date;
+                        do
+                        {
+                            Console.WriteLine("Введите минимальную дату рождения в формате дд.ММ.гггг (день.месяц.год):");
+                            date = Console.ReadLine();
+                        }
+                        while (!DateTime.TryParseExact(date, "dd.MM.yyyy", null, DateTimeStyles.None, out MinDate));
                         flag = false;
+
+                        //проверка максимальной даты записи
+                        do
+                        {
+                            Console.WriteLine("Введите максимальную дату рождения в формате дд.ММ.гггг (день.месяц.год):");
+                            date = Console.ReadLine();
+                        }
+                        while (!DateTime.TryParseExact(date, "dd.MM.yyyy", null, DateTimeStyles.None, out MaxDate));
+                        flag = false;
+
+                        for (int i = 0; i < LinesCount; i++)
+                        {
+                            if (db[i].DoB >= MinDate && db[i].DoB <= MaxDate)
+                            {
+                                Console.WriteLine(db[i].Print());
+                            }
+                        }
                     }
 
                     //Сортировка по возрастанию и убыванию даты
@@ -284,7 +407,6 @@ namespace Homework_7._8
                             DisplayList(db, LinesCount);
                         } else
                         {
-                            //db.OrderByDescending(x => x.RecDate);
                             db.Sort((x, y) => y.RecDate.CompareTo(x.RecDate));
                             DisplayList(db, LinesCount);
                         }
